@@ -126,7 +126,10 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="bg-orange-600 hover:bg-orange-700">
-                Ver Cardápio
+                <Link href="/menu" className="flex items-center">
+                Cardápio
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Link>
               </Button>
               <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/20 bg-transparent">
                 Fazer Reserva

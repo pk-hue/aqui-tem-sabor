@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ChevronLeft } from "lucide-react"
 
@@ -5,141 +8,71 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+type Prato = {
+  id: number;
+  nome: string;
+  preco: number;
+  descricao?: string;
+  categoria?: string;
+}
+
+type Categoria = {
+  id: string
+  name: string
+  pratos: Prato[]
+}
+
+const categoriasPadrao = [
+  { id: "entradas", name: "Entradas" },
+  { id: "principais", name: "Pratos Principais" },
+  { id: "sobremesas", name: "Sobremesas" },
+  { id: "bebidas", name: "Bebidas" },
+]
+
 export default function MenuPage() {
-  const menuCategories = [
-    {
-      id: "entradas",
-      name: "Entradas",
-      items: [
-        {
-          name: "Bolinho de Bacalhau",
-          description: "Bolinhos crocantes de bacalhau, servidos com molho especial da casa.",
-          price: "R$ 32,90",
-          image: "bolinho+de+bacalhau",
-        },
-        {
-          name: "Coxinha de Frango",
-          description: "Coxinhas de frango com catupiry, massa leve e crocante.",
-          price: "R$ 28,90",
-          image: "coxinha+brasileira",
-        },
-        {
-          name: "Dadinho de Tapioca",
-          description: "Cubinhos de tapioca com queijo coalho, servidos com geleia de pimenta.",
-          price: "R$ 26,90",
-          image: "dadinho+de+tapioca",
-        },
-        {
-          name: "Pastel de Carne",
-          description: "Pastéis crocantes recheados com carne moída temperada.",
-          price: "R$ 24,90",
-          image: "pastel+brasileiro",
-        },
-      ],
-    },
-    {
-      id: "principais",
-      name: "Pratos Principais",
-      items: [
-        {
-          name: "Feijoada Completa",
-          description: "Nossa tradicional feijoada com carnes selecionadas, acompanha arroz, couve, farofa e laranja.",
-          price: "R$ 45,90",
-          image: "feijoada+brasileira",
-        },
-        {
-          name: "Moqueca de Peixe",
-          description: "Deliciosa moqueca preparada com peixe fresco, leite de coco, pimentões e temperos especiais.",
-          price: "R$ 52,90",
-          image: "moqueca+de+peixe",
-        },
-        {
-          name: "Picanha na Brasa",
-          description: "Suculenta picanha grelhada na brasa, acompanha vinagrete, farofa e batatas rústicas.",
-          price: "R$ 68,90",
-          image: "picanha+brasileira",
-        },
-        {
-          name: "Baião de Dois",
-          description: "Arroz com feijão de corda, queijo coalho, carne seca e linguiça calabresa.",
-          price: "R$ 42,90",
-          image: "baiao+de+dois",
-        },
-        {
-          name: "Bobó de Camarão",
-          description: "Camarões em delicioso creme de mandioca, leite de coco e dendê.",
-          price: "R$ 58,90",
-          image: "bobo+de+camarao",
-        },
-        {
-          name: "Carne de Sol com Mandioca",
-          description: "Carne de sol grelhada com mandioca frita, cebola e manteiga de garrafa.",
-          price: "R$ 49,90",
-          image: "carne+de+sol+com+mandioca",
-        },
-      ],
-    },
-    {
-      id: "sobremesas",
-      name: "Sobremesas",
-      items: [
-        {
-          name: "Pudim de Leite",
-          description: "Clássico pudim de leite condensado com calda de caramelo.",
-          price: "R$ 18,90",
-          image: "pudim+de+leite",
-        },
-        {
-          name: "Brigadeirão",
-          description: "Torta cremosa de chocolate com granulado.",
-          price: "R$ 16,90",
-          image: "brigadeirao",
-        },
-        {
-          name: "Cocada Cremosa",
-          description: "Cocada mole servida quente com sorvete de creme.",
-          price: "R$ 22,90",
-          image: "cocada+cremosa",
-        },
-        {
-          name: "Cartola",
-          description: "Banana frita com queijo coalho, açúcar e canela.",
-          price: "R$ 19,90",
-          image: "cartola+sobremesa+brasileira",
-        },
-      ],
-    },
-    {
-      id: "bebidas",
-      name: "Bebidas",
-      items: [
-        {
-          name: "Caipirinha",
-          description: "Clássica caipirinha de limão, também disponível em outros sabores.",
-          price: "R$ 24,90",
-          image: "caipirinha",
-        },
-        {
-          name: "Suco de Frutas Naturais",
-          description: "Diversos sabores: laranja, abacaxi, maracujá, limão e mais.",
-          price: "R$ 12,90",
-          image: "suco+natural+brasileiro",
-        },
-        {
-          name: "Água de Coco",
-          description: "Água de coco natural e gelada.",
-          price: "R$ 9,90",
-          image: "agua+de+coco",
-        },
-        {
-          name: "Refrigerante",
-          description: "Diversas opções de refrigerantes.",
-          price: "R$ 7,90",
-          image: "refrigerante",
-        },
-      ],
-    },
-  ]
+  const [categorias, setCategorias] = useState<Categoria[]>([])
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    fetch("http://localhost:8080/cardapio")
+      .then(res => {
+        if (!res.ok) throw new Error("Erro ao carregar cardápio")
+        return res.json()
+      })
+      .then((data: Prato[]) => {
+        // Agrupamento por categoria (simples, baseado no nome do prato)
+        const agrupado: { [key: string]: Prato[] } = {
+          entradas: [],
+          principais: [],
+          sobremesas: [],
+          bebidas: [],
+        }
+        data.forEach(prato => {
+          const nome = prato.nome.toLowerCase()
+          if (nome.includes("feijoada") || nome.includes("lasanha") || nome.includes("moqueca") || nome.includes("picanha") || nome.includes("baião") || nome.includes("bobó") || nome.includes("carne de sol")) {
+            agrupado.principais.push(prato)
+          } else if (nome.includes("pudim") || nome.includes("brigadeirão") || nome.includes("cocada") || nome.includes("cartola")) {
+            agrupado.sobremesas.push(prato)
+          } else if (nome.includes("caipirinha") || nome.includes("suco") || nome.includes("água de coco") || nome.includes("refrigerante")) {
+            agrupado.bebidas.push(prato)
+          } else {
+            agrupado.entradas.push(prato)
+          }
+        })
+        const listaCategorias: Categoria[] = categoriasPadrao.map(cat => ({
+          ...cat,
+          pratos: agrupado[cat.id] ?? []
+        }))
+        setCategorias(listaCategorias)
+        setLoading(false)
+      })
+      .catch((e) => {
+        setErro(e.message)
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -148,6 +81,7 @@ export default function MenuPage() {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold text-orange-600">Aqui tem sabor</span>
           </Link>
+          {/* MENU DESKTOP */}
           <nav className="hidden md:flex gap-6">
             <Link href="/" className="text-sm font-medium hover:text-orange-600 transition-colors">
               Início
@@ -165,7 +99,13 @@ export default function MenuPage() {
           <Button variant="default" className="bg-orange-600 hover:bg-orange-700 hidden md:flex">
             Reservar Mesa
           </Button>
-          <Button variant="outline" size="icon" className="md:hidden bg-transparent">
+          {/* MENU MOBILE */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="md:hidden bg-transparent"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
             <span className="sr-only">Menu</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -185,6 +125,26 @@ export default function MenuPage() {
             </svg>
           </Button>
         </div>
+        {/* MOBILE MENU DROPDOWN */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden bg-white border-b border-orange-200 px-4 py-2">
+            <Link href="/" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Início
+            </Link>
+            <Link href="/menu" className="block py-2 text-sm font-medium text-orange-600">
+              Cardápio
+            </Link>
+            <Link href="/sobre" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Sobre
+            </Link>
+            <Link href="/contato" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Contato
+            </Link>
+            <Button variant="default" className="bg-orange-600 hover:bg-orange-700 w-full mt-2">
+              Reservar Mesa
+            </Button>
+          </nav>
+        )}
       </header>
       <main className="flex-1">
         <div className="container py-8">
@@ -199,42 +159,54 @@ export default function MenuPage() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Nosso Cardápio</h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Descubra os sabores autênticos da culinária brasileira, preparados com ingredientes frescos e muito
-              carinho.
+              Descubra os sabores autênticos da culinária brasileira, preparados com ingredientes frescos e muito carinho.
             </p>
           </div>
-
-          <Tabs defaultValue="entradas" className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
-              {menuCategories.map((category) => (
-                <TabsTrigger key={category.id} value={category.id}>
-                  {category.name}
-                </TabsTrigger>
+          {loading ? (
+            <p>Carregando cardápio...</p>
+          ) : erro ? (
+            <p className="text-red-600">{erro}</p>
+          ) : (
+            <Tabs defaultValue={categorias[0]?.id || ""} className="w-full">
+              <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
+                {categorias.map((category) => (
+                  <TabsTrigger key={category.id} value={category.id}>
+                    {category.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {categorias.map((category) => (
+                <TabsContent key={category.id} value={category.id}>
+                  {category.pratos.length === 0 ? (
+                    <p className="text-center text-orange-600">Nenhum item nessa categoria.</p>
+                  ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {category.pratos.map((item) => (
+                      <Card key={item.id} className="overflow-hidden flex flex-col md:flex-row">
+                        <img
+                          src={`/placeholder.svg?height=200&width=200&query=${encodeURIComponent(item.nome)}`}
+                          alt={item.nome}
+                          className="w-full md:w-1/3 h-48 md:h-auto object-cover"
+                        />
+                        <CardContent className="p-6 flex-1">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="text-xl font-bold">{item.nome}</h3>
+                            <span className="font-bold text-orange-600">
+                              R$ {item.preco.toFixed(2)}
+                            </span>
+                          </div>
+                          {item.descricao && (
+                            <p className="text-muted-foreground">{item.descricao}</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  )}
+                </TabsContent>
               ))}
-            </TabsList>
-            {menuCategories.map((category) => (
-              <TabsContent key={category.id} value={category.id}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {category.items.map((item, index) => (
-                    <Card key={index} className="overflow-hidden flex flex-col md:flex-row">
-                      <img
-                        src={`/placeholder.svg?height=200&width=200&query=${item.image}`}
-                        alt={item.name}
-                        className="w-full md:w-1/3 h-48 md:h-auto object-cover"
-                      />
-                      <CardContent className="p-6 flex-1">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-xl font-bold">{item.name}</h3>
-                          <span className="font-bold text-orange-600">{item.price}</span>
-                        </div>
-                        <p className="text-muted-foreground">{item.description}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+            </Tabs>
+          )}
         </div>
       </main>
       <footer className="bg-orange-900 text-white py-12">
@@ -248,57 +220,15 @@ export default function MenuPage() {
               <div className="flex space-x-4">
                 <a href="#" className="text-white hover:text-orange-300">
                   <span className="sr-only">Facebook</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-6 w-6"
-                  >
-                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                  </svg>
+                  {/* ...icon svg... */}
                 </a>
                 <a href="#" className="text-white hover:text-orange-300">
                   <span className="sr-only">Instagram</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-6 w-6"
-                  >
-                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                  </svg>
+                  {/* ...icon svg... */}
                 </a>
                 <a href="#" className="text-white hover:text-orange-300">
                   <span className="sr-only">WhatsApp</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-6 w-6"
-                  >
-                    <path d="M17.498 14.382c-.301-.15-1.767-.867-2.04-.966-.273-.101-.473-.15-.673.15-.197.295-.771.964-.944 1.162-.175.195-.349.21-.646.075-.3-.15-1.263-.465-2.403-1.485-.888-.795-1.484-1.77-1.66-2.07-.174-.3-.019-.465.13-.615.136-.135.301-.345.451-.523.146-.181.194-.301.297-.496.1-.21.049-.375-.025-.524-.075-.15-.672-1.62-.922-2.206-.24-.584-.487-.51-.672-.51-.172-.015-.371-.015-.571-.015-.2 0-.523.074-.797.359-.273.3-1.045 1.02-1.045 2.475s1.07 2.865 1.219 3.075c.149.195 2.105 3.195 5.1 4.485.714.3 1.27.48 1.704.629.714.227 1.365.195 1.88.121.574-.091 1.767-.721 2.016-1.426.255-.705.255-1.29.18-1.425-.074-.135-.27-.21-.57-.345z" />
-                    <path d="M20.52 3.449a12.826 12.826 0 0 0-9.097-3.449c-7.11 0-12.9 5.79-12.9 12.9 0 2.269.584 4.49 1.689 6.445l-1.79 6.533 6.694-1.757a12.836 12.836 0 0 0 6.135 1.562c7.11 0 12.901-5.79 12.901-12.9 0-3.459-1.336-6.698-3.76-9.134zm-9.097 19.861a10.69 10.69 0 0 1-5.458-1.495l-.393-.233-4.055 1.064 1.083-3.952-.25-.396a10.742 10.742 0 0 1-1.657-5.75c0-5.92 4.817-10.737 10.737-10.737s10.737 4.817 10.737 10.736-4.817 10.737-10.737 10.737z" />
-                  </svg>
+                  {/* ...icon svg... */}
                 </a>
               </div>
             </div>
@@ -337,15 +267,15 @@ export default function MenuPage() {
               <ul className="space-y-2 text-orange-200">
                 <li className="flex justify-between">
                   <span>Segunda a Sexta:</span>
-                  <span>11h às 15h | 18h às 23h</span>
+                  <span>7:00h às 20:00h</span>
                 </li>
                 <li className="flex justify-between">
                   <span>Sábados:</span>
-                  <span>11h às 23h</span>
+                  <span>7:00h às 20:00h</span>
                 </li>
                 <li className="flex justify-between">
                   <span>Domingos e Feriados:</span>
-                  <span>11h às 22h</span>
+                  <span>7:00h às 16:00h</span>
                 </li>
               </ul>
             </div>
