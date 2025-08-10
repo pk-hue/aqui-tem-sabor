@@ -36,13 +36,12 @@ export default function MenuPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    fetch("http://localhost:8080/cardapio")
+    fetch("https://aqui-tem-sabor-backend-production.up.railway.app/cardapio")
       .then(res => {
         if (!res.ok) throw new Error("Erro ao carregar cardápio")
         return res.json()
       })
       .then((data: Prato[]) => {
-        // Agrupamento por categoria (simples, baseado no nome do prato)
         const agrupado: { [key: string]: Prato[] } = {
           entradas: [],
           principais: [],
@@ -51,7 +50,7 @@ export default function MenuPage() {
         }
         data.forEach(prato => {
           const nome = prato.nome.toLowerCase()
-          if (nome.includes("feijoada") || nome.includes("lasanha") || nome.includes("moqueca") || nome.includes("picanha") || nome.includes("baião") || nome.includes("bobó") || nome.includes("carne de sol")) {
+          if (nome.includes("Bife à Milanesa") || nome.includes("lasanha") || nome.includes("moqueca") || nome.includes("picanha") || nome.includes("baião") || nome.includes("bobó") || nome.includes("carne de sol")) {
             agrupado.principais.push(prato)
           } else if (nome.includes("pudim") || nome.includes("brigadeirão") || nome.includes("cocada") || nome.includes("cartola")) {
             agrupado.sobremesas.push(prato)
