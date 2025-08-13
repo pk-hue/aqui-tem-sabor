@@ -29,6 +29,41 @@ const categoriasPadrao = [
   { id: "bebidas", name: "Bebidas" },
 ]
 
+// Todas as palavras-chave em minúsculo
+const palavrasPrincipais = [
+  "filé de frango à milanesa", "bife à milanesa", "moqueca", "picanha", "baião", "bobó", "carne de sol",
+  "filé de frango", "frango grelhado", "frango à parmegiana", "arroz biro-biro",
+  "omelete", "churrasco", "estrogonofe", "parmegiana de carne"
+]
+const palavrasSobremesas = [
+  "pudim", "brigadeirão", "cocada", "cartola"
+]
+const palavrasBebidas = [
+  "coca-cola 200 ml", "água 510 ml", "dolly guaraná 350 ml", "coca-cola lata 350 ml", "coca-cola 600 ml", 
+  "coca-cola 1 litro", "caldo de cana 500 ml", "caldo de cana 1 litro", "coca-cola 2 litros"
+]
+const palavrasEntradas = [
+  "pastel", "porção", "mandioca"
+]
+
+function detectarCategoria(prato: Prato): string {
+  // Prioridade para campo categoria
+  if (prato.categoria) {
+    const cat = prato.categoria.toLowerCase()
+    if (cat.includes("entrada")) return "entradas"
+    if (cat.includes("principal")) return "principais"
+    if (cat.includes("sobremesa")) return "sobremesas"
+    if (cat.includes("bebida")) return "bebidas"
+  }
+  const nome = prato.nome.toLowerCase()
+  if (palavrasPrincipais.some(palavra => nome.includes(palavra))) return "principais"
+  if (palavrasSobremesas.some(palavra => nome.includes(palavra))) return "sobremesas"
+  if (palavrasBebidas.some(palavra => nome.includes(palavra))) return "bebidas"
+  if (palavrasEntradas.some(palavra => nome.includes(palavra))) return "entradas"
+  // Se não bater nada, categoria "principais" por padrão
+  return "principais"
+}
+
 export default function MenuPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
@@ -49,16 +84,8 @@ export default function MenuPage() {
           bebidas: [],
         }
         data.forEach(prato => {
-          const nome = prato.nome.toLowerCase()
-          if (nome.includes("Bife à Milanesa") || nome.includes("lasanha") || nome.includes("moqueca") || nome.includes("picanha") || nome.includes("baião") || nome.includes("bobó") || nome.includes("carne de sol")) {
-            agrupado.principais.push(prato)
-          } else if (nome.includes("pudim") || nome.includes("brigadeirão") || nome.includes("cocada") || nome.includes("cartola")) {
-            agrupado.sobremesas.push(prato)
-          } else if (nome.includes("caipirinha") || nome.includes("suco") || nome.includes("água de coco") || nome.includes("refrigerante")) {
-            agrupado.bebidas.push(prato)
-          } else {
-            agrupado.entradas.push(prato)
-          }
+          const categoria = detectarCategoria(prato)
+          agrupado[categoria].push(prato)
         })
         const listaCategorias: Categoria[] = categoriasPadrao.map(cat => ({
           ...cat,
@@ -71,7 +98,7 @@ export default function MenuPage() {
         setErro(e.message)
         setLoading(false)
       })
-  }, [])
+  }, []) 
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -167,7 +194,7 @@ export default function MenuPage() {
             <p className="text-red-600">{erro}</p>
           ) : (
             <Tabs defaultValue={categorias[0]?.id || ""} className="w-full">
-              <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
+              <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8 h-23">
                 {categorias.map((category) => (
                   <TabsTrigger key={category.id} value={category.id}>
                     {category.name}
