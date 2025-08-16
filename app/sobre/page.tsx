@@ -1,10 +1,34 @@
-import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { ChevronRight, ChevronLeft, MapPin, Phone, Clock } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-export default function SobrePage() {
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [sobreDropdownOpen, setSobreDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
+
+  // Fecha o dropdown se clicar fora dele
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setSobreDropdownOpen(false);
+      }
+    }
+    if (sobreDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [sobreDropdownOpen]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -12,14 +36,15 @@ export default function SobrePage() {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold text-orange-600">Aqui tem sabor</span>
           </Link>
+          {/* Desktop Menu */}
           <nav className="hidden md:flex gap-6">
-            <Link href="/" className="text-sm font-medium hover:text-orange-600 transition-colors">
+            <Link href="/" className="text-sm font-medium hover:text-orange-600 transition-colors ">
               Início
             </Link>
-            <Link href="/menu" className="text-sm font-medium hover:text-orange-600 transition-colors">
+            <Link href="/menu" className="text-sm font-medium ">
               Cardápio
             </Link>
-            <Link href="/sobre" className="text-sm font-medium text-orange-600">
+            <Link href="/sobre" className="text-sm font-medium hover:text-orange-600 transition-colors text-orange-600">
               Sobre
             </Link>
             <Link href="/contato" className="text-sm font-medium hover:text-orange-600 transition-colors">
@@ -29,7 +54,14 @@ export default function SobrePage() {
           <Button variant="default" className="bg-orange-600 hover:bg-orange-700 hidden md:flex">
             Reservar Mesa
           </Button>
-          <Button variant="outline" size="icon" className="md:hidden bg-transparent">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="outline"
+            size="icon"
+            className="md:hidden bg-transparent"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Abrir menu"
+          >
             <span className="sr-only">Menu</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -49,13 +81,33 @@ export default function SobrePage() {
             </svg>
           </Button>
         </div>
+        {/* Mobile Dropdown */}
+        {menuOpen && (
+          <nav className="md:hidden bg-white border-b border-orange-200 px-4 py-2">
+            <Link href="/" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Início
+            </Link>
+            <Link href="/menu" className="block py-2 text-sm font-medium ">
+              Cardápio
+            </Link>
+            <Link href="/sobre" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors text-orange-600">
+              Sobre
+            </Link>
+            <Link href="/contato" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Contato
+            </Link>
+            <Button variant="default" className="bg-orange-600 hover:bg-orange-700 w-full mt-2">
+              Reservar Mesa
+            </Button>
+          </nav>
+        )}
       </header>
       <main className="flex-1">
         <div className="container py-8">
           <div className="flex items-center mb-8">
             <Button variant="ghost" size="sm" className="flex items-center gap-1" asChild>
               <Link href="/">
-                <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
                 Voltar
               </Link>
             </Button>

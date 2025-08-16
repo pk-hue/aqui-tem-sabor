@@ -1,13 +1,33 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ChevronRight, MapPin, Phone, Clock } from "lucide-react";
+import { ChevronRight, ChevronLeft, MapPin, Phone, Clock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sobreDropdownOpen, setSobreDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
+
+  // Fecha o dropdown se clicar fora dele
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setSobreDropdownOpen(false);
+      }
+    }
+    if (sobreDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [sobreDropdownOpen]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -16,11 +36,12 @@ export default function Home() {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold text-orange-600">Aqui tem sabor</span>
           </Link>
+          {/* Desktop Menu */}
           <nav className="hidden md:flex gap-6">
-            <Link href="/" className="text-sm font-medium hover:text-orange-600 transition-colors">
+            <Link href="/" className="text-sm font-medium hover:text-orange-600 transition-colors text-orange-600">
               Início
             </Link>
-            <Link href="/menu" className="text-sm font-medium hover:text-orange-600 transition-colors">
+            <Link href="/menu" className="text-sm font-medium ">
               Cardápio
             </Link>
             <Link href="/sobre" className="text-sm font-medium hover:text-orange-600 transition-colors">
@@ -33,6 +54,7 @@ export default function Home() {
           <Button variant="default" className="bg-orange-600 hover:bg-orange-700 hidden md:flex">
             Reservar Mesa
           </Button>
+          {/* Mobile Menu Button */}
           <Button
             variant="outline"
             size="icon"
@@ -59,55 +81,24 @@ export default function Home() {
             </svg>
           </Button>
         </div>
+        {/* Mobile Dropdown */}
         {menuOpen && (
-          <nav className="md:hidden absolute left-0 top-16 w-full bg-background border-b z-50 shadow-lg">
-            <ul className="flex flex-col gap-2 p-4">
-              <li>
-                <Link
-                  href="/"
-                  className="block py-2 px-4 rounded hover:bg-orange-100 text-orange-600 font-medium"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Início
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/menu"
-                  className="block py-2 px-4 rounded hover:bg-orange-100 text-orange-600 font-medium"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Cardápio
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/sobre"
-                  className="block py-2 px-4 rounded hover:bg-orange-100 text-orange-600 font-medium"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Sobre
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contato"
-                  className="block py-2 px-4 rounded hover:bg-orange-100 text-orange-600 font-medium"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Contato
-                </Link>
-              </li>
-              <li>
-                <Button
-                  variant="default"
-                  className="w-full bg-orange-600 hover:bg-orange-700 mt-2"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Reservar Mesa
-                </Button>
-              </li>
-            </ul>
+          <nav className="md:hidden bg-white border-b border-orange-200 px-4 py-2">
+            <Link href="/" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors text-orange-600">
+              Início
+            </Link>
+            <Link href="/menu" className="block py-2 text-sm font-medium ">
+              Cardápio
+            </Link>
+            <Link href="/sobre" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Sobre
+            </Link>
+            <Link href="/contato" className="block py-2 text-sm font-medium hover:text-orange-600 transition-colors">
+              Contato
+            </Link>
+            <Button variant="default" className="bg-orange-600 hover:bg-orange-700 w-full mt-2">
+              Reservar Mesa
+            </Button>
           </nav>
         )}
       </header>
