@@ -241,7 +241,7 @@ export default function MenuPage() {
             <div>
               <h3 className="text-xl font-bold mb-4">Aqui tem sabor</h3>
               <p className="text-orange-200 mb-4">
-                Trazendo o verdadeiro sabor da comida caseira brasileira para sua mesa desde 2008.
+                Trazendo o verdadeiro sabor da comida caseira brasileira para sua mesa.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-white hover:text-orange-300">

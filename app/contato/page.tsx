@@ -164,11 +164,11 @@ export default function Home() {
                     <div>
                       <h3 className="text-lg font-bold mb-2">Endereço</h3>
                       <p className="text-muted-foreground">
-                        Av. Brasil, 1500
+                        R. Pirajibe - N° 346
                         <br />
-                        Centro, São Paulo - SP
+                        Vila Itaberaba, São Paulo - SP
                         <br />
-                        CEP: 01000-000
+                        CEP: 02847-001
                       </p>
                     </div>
                   </div>
@@ -183,9 +183,9 @@ export default function Home() {
                     <div>
                       <h3 className="text-lg font-bold mb-2">Telefones</h3>
                       <p className="text-muted-foreground">
-                        Telefone: (11) 3333-4444
+                        Telefone: (11) 94580-0353
                         <br />
-                        WhatsApp: (11) 99999-8888
+                        WhatsApp: (11) 93272-9126
                       </p>
                     </div>
                   </div>
@@ -200,9 +200,7 @@ export default function Home() {
                     <div>
                       <h3 className="text-lg font-bold mb-2">E-mail</h3>
                       <p className="text-muted-foreground">
-                        contato@aquitemsabor.com.br
-                        <br />
-                        reservas@aquitemsabor.com.br
+                        sqbebe@gmail.com
                       </p>
                     </div>
                   </div>
@@ -219,15 +217,15 @@ export default function Home() {
                       <ul className="text-muted-foreground space-y-1">
                         <li className="flex justify-between">
                           <span>Segunda a Sexta:</span>
-                          <span>11h às 15h | 18h às 23h</span>
+                          <span>7:00h às 20:00h</span>
                         </li>
                         <li className="flex justify-between">
                           <span>Sábados:</span>
-                          <span>11h às 23h</span>
+                          <span>7:00h às 20:00h</span>
                         </li>
                         <li className="flex justify-between">
                           <span>Domingos e Feriados:</span>
-                          <span>11h às 22h</span>
+                          <span>7:00h às 16:00h</span>
                         </li>
                       </ul>
                     </div>
@@ -255,7 +253,7 @@ export default function Home() {
             <div>
               <h3 className="text-xl font-bold mb-4">Aqui tem sabor</h3>
               <p className="text-orange-200 mb-4">
-                Trazendo o verdadeiro sabor da comida caseira brasileira para sua mesa desde 2008.
+                Trazendo o verdadeiro sabor da comida caseira brasileira para sua mesa.
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="text-white hover:text-orange-300">
